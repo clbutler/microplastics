@@ -13,12 +13,20 @@ import contextily as ctx
 import seaborn as sns
 import numpy as np
 import scipy.stats as stats
+import pytest
+import os
 
 # In[87]:
+    
+#pytest - integration tests    
+    
+def test_files():
+    assert os.path.exists('data/Marine Microplastic Concentrations.geojson'), 'could not find geojson file'
+    assert os.path.exists('data/c20230705_OffshoreMPAs_WGS84.shp'), 'could not find shape file'
 
 
-microplastic = gpd.read_file('Marine Microplastic Concentrations.geojson') #import geojson file containing microplastic survey data
-MPAs = gpd.read_file('c20230705-OffshoreMPAs-WGS84/c20230705_OffshoreMPAs_WGS84.shp') #import shape file of marine protected area (MPAs)
+microplastic = gpd.read_file('data/Marine Microplastic Concentrations.geojson') #import geojson file containing microplastic survey data
+MPAs = gpd.read_file('data/c20230705_OffshoreMPAs_WGS84.shp') #import shape file of marine protected area (MPAs)
 
 
 # In[88]:
@@ -26,11 +34,35 @@ MPAs = gpd.read_file('c20230705-OffshoreMPAs-WGS84/c20230705_OffshoreMPAs_WGS84.
 
 microplastic.head()
 
+#pytest - integration tests
+
+def test_geodataframe():
+    assert isinstance(microplastic, gpd.geodataframe.GeoDataFrame), 'microplastic file is not able to load as a GeoDataFrame' 
+
+def test_shapefile():
+    assert isinstance(MPAs, gpd.GeoDataFrame), 'MPAs file is not able to load as a GeoDataFrame'
+    
+def test_geometrycolumn():
+    assert 'geometry' in MPAs.columns, 'MPAs is missing a geometry column'  
+    
+def test_shape():
+    assert microplastic.shape[1] > 0, 'Microplastic file is empty'
+
+    
+     
+
+
+
+
 
 # In[89]:
 
 
 MPAs.head()
+
+
+
+
 
 
 # In[90]:
@@ -46,6 +78,13 @@ MPAs = MPAs.to_crs(epsg = 3857) #convert to same coordinate reference system - e
 
 
 # In[92]:
+    
+#feature testing
+
+def test_crs():
+    assert microplastic.crs == 'EPSG:3857', 'microplastic data could not convert to the EPSG crs (co-ordinate reference system)'
+    assert MPAs.crs == 'EPSG:3857', 'MPA data could not convert to the EPSG crs (co-ordinate reference system)'
+    
 
 
 microplastic.columns
